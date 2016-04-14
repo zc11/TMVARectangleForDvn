@@ -3,7 +3,7 @@
 
 void readxml(Float_t ptMin=5.5, Float_t ptMax=7., Float_t RAA=1.)
 {
-  void calRatio(Float_t* results);
+  void calRatio(Float_t* results, Bool_t verbose=false)
   ptmin = ptMin;
   ptmax = ptMax;
   raa = RAA;
