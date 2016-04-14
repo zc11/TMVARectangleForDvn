@@ -147,8 +147,8 @@ void readxml(Float_t ptMin=5.5, Float_t ptMax=7., Float_t RAA=1.)
   TH2F* hempty = new TH2F("hempty","",50,0,1.,10,0.,max*1.2);  
   hempty->GetXaxis()->CenterTitle();
   hempty->GetYaxis()->CenterTitle();
-  hempty->GetYaxis()->SetTitle("Signal efficiency");
-  hempty->GetXaxis()->SetTitle("S/sqrt(S+B)");
+  hempty->GetXaxis()->SetTitle("Signal efficiency");
+  hempty->GetYaxis()->SetTitle("S/sqrt(S+B)");
   hempty->GetXaxis()->SetTitleOffset(0.9);
   hempty->GetYaxis()->SetTitleOffset(1.0);
   hempty->GetXaxis()->SetTitleSize(0.05);
@@ -245,12 +245,13 @@ void calRatio(Float_t* results, Bool_t verbose=false)
 
   TH1D* hrec = new TH1D("hrec",";D p_{T} (GeV/c);Signal reco entries",nbin-1,pt);
   TH1D* hgen = new TH1D("hgen",";D p_{T} (GeV/c);Generated entries",nbin-1,pt);
-  TH1D* heff = new TH1D("heff",";D p_{T} (GeV/c);Efficiency",nbin-1,pt);
+  TH1D* heff = new TH1D("heff",";D p_{T} (GeV/c);Prefilter efficiency",nbin-1,pt);
   signal->Project("hrec","dcandpt",mycuts);
   generated->Project("hgen","dpt",mycutg);
   heff->Divide(hrec,hgen,1.,1.,"B");
   TCanvas* ceff = new TCanvas("ceff","",600,600);
   heff->Draw();
+  ceff->SaveAs("plots/EffPrefilter.pdf");
 
   TH1D* htheoryreco = new TH1D("htheoryreco","",nbin-1,pt);
   htheoryreco->Multiply(heff,hfonll,1,1,"B");
