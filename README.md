@@ -1,10 +1,12 @@
-# tutorialTMVA
+<h1> tutorialTMVA </h1>
 
-### Detailed explanation of the workframe
-https://github.com/boundino/tutorialTMVA/blob/master/20160608_tutorialTMVA.pdf
+<h2> Detailed explanation of the workframe </h2>
+<p> https://github.com/boundino/tutorialTMVA/blob/master/20160608_tutorialTMVA.pdf </p>
 
-### How to run the macros
-1. cd myTMVA/
-2. root TMVAClassification.C
-3. cd ../readxml/
-4. root readxml.cc+
+<h2> How to run the macros </h2>
+<pre>
+cd myTMVA/
+root TMVAClassification.C
+cd ../readxml/
+root readxml.cc+
+</pre>
