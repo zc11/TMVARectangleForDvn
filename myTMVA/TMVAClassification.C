@@ -189,8 +189,13 @@ void TMVAClassification( TString myMethodList = "" )
    // note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
    // [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
 
-   factory->AddVariable("dcandffls3d");//>
-   factory->AddVariable("dcandfprob");//>
+   factory->AddVariable("VtxProb");//>
+   factory->AddVariable("3DPointingAngle");//>
+   factory->AddVariable("3DDecayLengthSignificance");//>
+//   factory->AddVariable("pTD1");//>
+//   factory->AddVariable("pTD2");//>
+//   factory->AddVariable("NHitD1");//>
+//   factory->AddVariable("NHitD2");//>
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
@@ -206,15 +211,15 @@ void TMVAClassification( TString myMethodList = "" )
    //   gSystem->Exec("wget http://root.cern.ch/files/tmva_class_example.root");
    
    
-   TFile *inputS = TFile::Open("/data/wangj/TutorialsSamples/Dmesonana_hiforest_official_PbPbD0tokaonpion_Pt0153050_tkpt1p0eta1p1_2760GeV_0613_genmatched_Candbase.root");
-   TFile *inputB = TFile::Open("/data/wangj/TutorialsSamples/Dmesonana_Rereco_MBtrig_d0pt0_y1p2_tk1p0_eta1p1_d2p0_alpha0p2_tight_0710_6lumi_Candbase.root");
+   TFile *inputS = TFile::Open("/data/zhchen/D0tree_Pythia8_pp502_Pthat0_5_10_15_prompt_loosecut_matched_deltaR0p5.root");
+   TFile *inputB = TFile::Open("/data/zhchen/D0tree_pPb_8160_N185_250_defaultcut_testsample.root");
 
    std::cout << "--- TMVAClassification       : Using input file: " << inputS->GetName() << " & "<< inputB->GetName() <<std::endl;
    
    // --- Register the training and test trees
 
-   TTree *signal     = (TTree*)inputS->Get("ntDzero");
-   TTree *background = (TTree*)inputB->Get("ntDzero"); 
+   TTree *signal     = (TTree*)inputS->Get("D0para/D0para");
+   TTree *background = (TTree*)inputB->Get("demo/D0para"); 
 
    //global event weights per tree (see below for setting event-wise weights)
    Double_t signalWeight     = 1.0;
@@ -271,8 +276,8 @@ void TMVAClassification( TString myMethodList = "" )
    // Apply additional cuts on the signal and background samples (can be different)
 
    //pp
-   TCut mycuts = "dcandy>-1.&&dcandy<1.&&dcanddau1pt>1.0&&dcanddau2pt>1.0&&(matchedtogen&&nongendoublecounted)&&dcandffls3d>2.0&&TMath::ACos(dcandcosalpha)<0.12&&dcandfprob>0.05&&dcandpt>5.5&&dcandpt<7.0";
-   TCut mycutb = "MinBias&&dcandy>-1.&&dcandy<1.&&dcanddau1pt>1.0&&dcanddau2pt>1.0&&(TMath::Abs(dcandmass-1.865)>0.10&&TMath::Abs(dcandmass-1.865)<0.15)&&dcandffls3d>2.0&&TMath::ACos(dcandcosalpha)<0.12&&dcandfprob>0.05&&dcandpt>5.5&&dcandpt<7.0";
+   TCut mycuts = "pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1.5&&3DDecayLengthSignificance>0&&pTD1>0.5&&pTD2>0.5&&NHitD1>0&&NHitD2>0";
+   TCut mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1.5&&3DDecayLengthSignificance>0&&pTD1>0.5&&pTD2>0.5&&NHitD1>0&&NHitD2>0";
 
    // Tell the factory how to use the training and testing events
    //
@@ -313,7 +318,7 @@ void TMVAClassification( TString myMethodList = "" )
 
    if (Use["CutsSA"])
       factory->BookMethod( TMVA::Types::kCuts, "CutsSA",
-                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale:VarProp[0]=FMax:VarProp[1]=FMax" );
+                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale:VarProp[0]=FMax:VarProp[1]=FMin:VarProp[2]=FMax" );
    //                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale:VarProp[0]=FMax:VarProp[1]=FMax:VarProp[2]=FMax" );
 
    // Likelihood ("naive Bayes estimator")
