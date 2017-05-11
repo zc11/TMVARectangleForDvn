@@ -12,8 +12,8 @@ TString varval[NmaxVar];
 Int_t Nsigma = 2;
 Float_t ptmin,ptmax,raa;
 
-TString inputSname = "/data/wangj/TutorialsSamples/Dmesonana_hiforest_official_PbPbD0tokaonpion_Pt0153050_tkpt1p0eta1p1_2760GeV_0613_genmatched.root";
-TString inputBname = "/data/wangj/TutorialsSamples/Dmesonana_Rereco_MBtrig_d0pt0_y1p2_tk1p0_eta1p1_d2p0_alpha0p2_tight_0710_6lumi.root";
-TString mycuts = "dcandy>-1.&&dcandy<1.&&dcanddau1pt>1.0&&dcanddau2pt>1.0&&(matchedtogen&&nongendoublecounted)&&dcandffls3d>2.0&&TMath::ACos(dcandcosalpha)<0.12&&dcandfprob>0.05";
-TString mycutb = "MinBias&&dcandy>-1.&&dcandy<1.&&dcanddau1pt>1.0&&dcanddau2pt>1.0&&(TMath::Abs(dcandmass-1.865)>0.10&&TMath::Abs(dcandmass-1.865)<0.15)&&dcandffls3d>2.0&&TMath::ACos(dcandcosalpha)<0.12&&dcandfprob>0.05";
-TString mycutg = "dy>-1.&&dy<1.";
+TString inputSname = "/data/zhchen/D0tree_Pythia8_pp502_Pthat0_5_10_15_prompt_loosecut_matched_deltaR0p5.root";
+TString inputBname = "/data/zhchen/D0tree_pPb_8160_N185_250_defaultcut_testsample.root";
+TString mycuts = "pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1.5&&3DDecayLengthSignificance>0&&pTD1>0.5&&pTD2>0.5&&NHitD1>0&&NHitD2>0";
+TString mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1.5&&3DDecayLengthSignificance>0&&pTD1>0.5&&pTD2>0.5&&NHitD1>0&&NHitD2>0";
+TString mycutg = "eta>-1.&&eta<1.";

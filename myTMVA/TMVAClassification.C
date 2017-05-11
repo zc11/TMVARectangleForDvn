@@ -191,9 +191,9 @@ void TMVAClassification( TString myMethodList = "" )
 
    factory->AddVariable("VtxProb");//>
    factory->AddVariable("3DPointingAngle");//>
-   factory->AddVariable("3DDecayLengthSignificance");//>
-//   factory->AddVariable("pTD1");//>
-//   factory->AddVariable("pTD2");//>
+//   factory->AddVariable("3DDecayLengthSignificance");//>
+   factory->AddVariable("pTD1");//>
+   factory->AddVariable("pTD2");//>
 //   factory->AddVariable("NHitD1");//>
 //   factory->AddVariable("NHitD2");//>
 
@@ -276,8 +276,8 @@ void TMVAClassification( TString myMethodList = "" )
    // Apply additional cuts on the signal and background samples (can be different)
 
    //pp
-   TCut mycuts = "pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1.5&&3DDecayLengthSignificance>0&&pTD1>0.5&&pTD2>0.5&&NHitD1>0&&NHitD2>0";
-   TCut mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1.5&&3DDecayLengthSignificance>0&&pTD1>0.5&&pTD2>0.5&&NHitD1>0&&NHitD2>0";
+   TCut mycuts = "pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1&&3DDecayLengthSignificance>0.5&&pTD1>0.5&&pTD2>0.5&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1";
+   TCut mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-0.5&&VtxProb>0.01&&3DPointingAngle<1&&3DDecayLengthSignificance>0.5&&pTD1>0.5&&pTD2>0.5&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1";
 
    // Tell the factory how to use the training and testing events
    //
@@ -318,7 +318,7 @@ void TMVAClassification( TString myMethodList = "" )
 
    if (Use["CutsSA"])
       factory->BookMethod( TMVA::Types::kCuts, "CutsSA",
-                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale:VarProp[0]=FMax:VarProp[1]=FMin:VarProp[2]=FMax" );
+                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale:VarProp[0]=FMax:VarProp[1]=FMin:VarProp[2]=FMax:VarProp[3]=FMax" );
    //                           "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale:VarProp[0]=FMax:VarProp[1]=FMax:VarProp[2]=FMax" );
 
    // Likelihood ("naive Bayes estimator")
