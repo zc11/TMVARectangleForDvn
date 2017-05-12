@@ -277,7 +277,7 @@ void TMVAClassification( TString myMethodList = "" )
 
    //pp
    TCut mycuts = "pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1&&3DDecayLengthSignificance>0.5&&pTD1>0.5&&pTD2>0.5&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1";
-   TCut mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-0.5&&VtxProb>0.01&&3DPointingAngle<1&&3DDecayLengthSignificance>0.5&&pTD1>0.5&&pTD2>0.5&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1";
+   TCut mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.01&&3DPointingAngle<1&&3DDecayLengthSignificance>0.5&&pTD1>0.5&&pTD2>0.5&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1";
 
    // Tell the factory how to use the training and testing events
    //
