@@ -1,12 +1,34 @@
 #include "readxml.h"
 #include "Tools.h"
 
-void readxml(Float_t ptMin=1., Float_t ptMax=2., Float_t RAA=1.)
+#include <iostream>
+#include <vector>
+#include "TCanvas.h"
+#include "TH1.h"
+#include "TMath.h"
+#include "TFile.h"
+#include "TString.h"
+#include "RooFit.h"
+#include "RooRealVar.h"
+#include "RooPlot.h"
+#include "RooDataHist.h"
+#include "RooGaussian.h"
+#include "RooPolynomial.h"
+#include "RooAddPdf.h"
+#include "TTree.h"
+
+#include <iostream>
+#include <fstream>
+
+using namespace RooFit;
+
+//cut order overall: pTmax,pTmin,abs(eta),abs(daueta),VtxProb,3DPointingAngle,3DDecayLengthSignificance,pTD,NHitD
+//cut order TMVA: VtxProb,3DPointingAngle,pTD1,pTD2
+
+void readxml(Float_t ptMin=1., Float_t ptMax=2.)
 {
-  void calRatio(Float_t* results, Bool_t verbose=false);
   ptmin = ptMin;
   ptmax = ptMax;
-  raa = RAA;
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -69,6 +91,10 @@ void readxml(Float_t ptMin=1., Float_t ptMax=2., Float_t RAA=1.)
       varnames.push_back(varname);
     }
   cout<<" ╞════════════╪════════════════════════════╪════════╡"<<endl;
+    TString ptstring = Form("(%.1f,%.1f)",ptmin,ptmax);
+    cout<<" | "<<setiosflags(ios::left)<<setw(10)<<"Pt"<<" | "<<setiosflags(ios::left)<<setw(26)<<ptstring<<" | "<<setiosflags(ios::left)<<setw(6)<<" "<<" |"<<endl;
+    cout<<" ╘════════════╧════════════════════════════╧════════╛"<<endl;
+    cout<<endl;
     
   void* weight = TMVA::gTools().GetChild(rootnode,"Weights");
   void* eff = TMVA::gTools().GetChild(weight,"Bin");
@@ -103,177 +129,185 @@ void readxml(Float_t ptMin=1., Float_t ptMax=2., Float_t RAA=1.)
       n++;
     }
   TMVA::gTools().xmlengine().FreeDoc(doc);
-
-  Float_t wSignal=0;
-  Float_t wBackground=0;
-  Float_t* weights = new Float_t[2];
-  //
-  calRatio(weights);//weight signal and background
-  //
-
-  wSignal = weights[1];
-  wBackground = weights[0];
-
-  cout<<endl;
-  cout<<"Looking for max significance ..."<<endl;
-
-  Double_t max = wSignal*effS[1]/sqrt(wSignal*effS[1]+wBackground*effB[1]);
-  int maxindex = 1;
-  effS[0]=0;
-  for(int i=1;i<100;i++)
+    
+    cout<<"finish reading cuts"<<endl;
+    //construct histos with TMVA cuts
+    TFile *inputB = TFile::Open(inputBname);
+    if(!inputB)
     {
-      effSig[i] = wSignal*effS[i]/sqrt(wSignal*effS[i]+wBackground*effB[i]);
-      if(effSig[i]>max)
-	{
-	  max=effSig[i];
-	  maxindex=i;
-	}
+        cout<<"file not found"<<endl;
+        return;
     }
-  cout<<endl;
-  cout<<" ╒══════════════════════════════════════════════════╕"<<endl;
-  cout<<" |                     Opt Result                   |"<<endl;
-  cout<<" ├────────────┬────────────┬───────────────┬────────┤"<<endl;
-  cout<<" | "<<setiosflags(ios::left)<<setw(10)<<"Sig eff"<<" | "<<setiosflags(ios::left)<<setw(10)<<effS[maxindex]<<" | "<<setiosflags(ios::left)<<setw(13)<<"S/sqrt(S+B)"<<" | "<<setiosflags(ios::left)<<setw(6)<<max<<" |"<<endl;
-  cout<<" ├────────────┴────────────┴───┬───────────┴────────┤"<<endl;
+    
+    TTree *background = (TTree*)inputB->Get("demo/D0para");
 
-  for(int m=0;m<nVar;m++)
+    TH1D* Dmass[100];
+    for(int icut=0;icut<100;icut++)
     {
-	cout<<nVar<<","<<m<<endl;
-      if(m) cout<<" ├─────────────────────────────┼────────────────────┤"<<endl;
-      cout<<" | "<<setiosflags(ios::left)<<setw(27)<<varval[m]<<" | "<<setiosflags(ios::left)<<setw(18)<<cutval[m].at(maxindex)<<" |"<<endl;
+        Dmass[icut] = new TH1D(Form("mass_cut%d",icut),Form("mass_cut%d",icut),60,1.7,2.0);
     }
-  cout<<" ╘═════════════════════════════╧════════════════════╛"<<endl;
-  cout<<endl;
+    
+    cout<<"finish histo construction"<<endl;
+    
+    int nMult_ass_good;
+    float pt;
+    float eta;
+    float mass;
+    float VtxProb;
+    int nhit1;
+    int nhit2;
+    float dlos;
+    float pt1;
+    float pt2;
+    float ptErr1;
+    float ptErr2;
+    float eta1;
+    float eta2;
+    float agl_abs;
+    
+    background->SetBranchAddress("Ntrkoffline",&nMult_ass_good);
+    background->SetBranchAddress("pT",&pt);
+    background->SetBranchAddress("eta",&eta);
+    background->SetBranchAddress("mass",&mass);
+    background->SetBranchAddress("VtxProb",&VtxProb);
+    background->SetBranchAddress("3DPointingAngle",&agl_abs);
+    background->SetBranchAddress("3DDecayLengthSignificance",&dlos);
+    background->SetBranchAddress("NHitD1",&nhit1);
+    background->SetBranchAddress("NHitD2",&nhit2);
+    background->SetBranchAddress("pTD1",&pt1);
+    background->SetBranchAddress("pTD2",&pt2);
+    background->SetBranchAddress("pTerrD1",&ptErr1);
+    background->SetBranchAddress("pTerrD2",&ptErr2);
+    background->SetBranchAddress("EtaD1",&eta1);
+    background->SetBranchAddress("EtaD2",&eta2);
+    
+    Int_t nentries = background->GetEntries();
+    for (Int_t i=0;i<nentries;i++)
+    {
+        background->GetEntry(i);
+        
+        //first implement non-tuning cut; must be sychronized with the setting in TMVA tuning (mycutb)
+        if(nMult_ass_good<185 || nMult_ass_good>=250) continue;
+        if(pt>ptmax || pt<ptmin) continue;
+        if(fabs(eta1)>1.5 || fabs(eta2)>1.5) continue;
+        if(fabs(eta)>1) continue;
+        if(dlos<=0.5) continue;
+        if(nhit1<11 || nhit2<11) continue;
+        if(ptErr1/pt1>=0.1 || ptErr2/pt2>=0.1) continue;
+        
+        for(int icut=0;icut<100;icut++)
+        {
+            if(VtxProb<cutval[0].at(icut)) continue;
+            if(agl_abs>cutval[1].at(icut)) continue;
+            if(pt1<cutval[2].at(icut)) continue;
+            if(pt2<cutval[3].at(icut)) continue;
+            Dmass[icut]->Fill(mass);
+        }
+    }
+    
+    cout<<"finish fill histos"<<endl;
+    
+    //fit the histos to get sigsig
+    double sigsig[100];
+    
+    for(int icut=0;icut<100;icut++)
+    {
+        TH1D* h;
+        gDirectory->GetObject(Form("mass_cut%d",icut),h);
+        
+        RooRealVar x("x","mass",1.70, 2.00);
+        RooDataHist data("data","dataset", x, h);
+        RooPlot* xframe = x.frame(60);
+        data.plotOn(xframe,Name("data"));
+        RooRealVar mean("mean","mean",1.86, 1.80, 1.90);
+        RooRealVar sigma1("sigma1","sigma1",0.015,0.005,0.03);
+        RooRealVar sigma2("sigma2","sigma2",0.015,0.005,0.03);
+        RooRealVar sig1("sig1","signal1",10,0,10000000);
+        RooRealVar sig2("sig2","signal2",10,0,10000000);
+        RooRealVar a("a","a",0,-100000,100000);
+        RooRealVar b("b","b",0,-100000,100000);
+        RooRealVar cp("cp","cp",0,-100000,100000);
+        RooRealVar d("d","d",0,-100000,100000);
+        RooGaussian gaus1("gaus1","gaus1",x,mean,sigma1);
+        RooGaussian gaus2("gaus2","gaus2",x,mean,sigma2);
+        RooPolynomial poly("poly","poly",x,RooArgList(a,b,cp,d));
+        RooRealVar polysig("polysig","polysig",10,0,10000000);
+        RooAddPdf sum("sum","sum",RooArgList(gaus1,gaus2,poly),RooArgList(sig1,sig2,polysig));
+        
+        RooFitResult *r = sum.fitTo(data,Save(),Minos(kTRUE),PrintLevel(-1));
+        r = sum.fitTo(data,Save(),Minos(kTRUE),PrintLevel(-1));
+        r = sum.fitTo(data,Save(),Minos(kTRUE),PrintLevel(-1));
+        r = sum.fitTo(data,Save(),Minos(kTRUE),PrintLevel(-1));
+        r = sum.fitTo(data,Save(),Minos(kTRUE),PrintLevel(-1));
+        
+        sum.plotOn(xframe,Name("sum"));
+        sum.plotOn(xframe,Components(poly),LineStyle(kDashed));
+        
+        double chi2 = xframe->chiSquare("sum","data");
+        double meanf = mean.getVal();
+        double meanfe = mean.getError();
+        double sigmaf1 = sigma1.getVal();
+        double sigmaf2 = sigma2.getVal();
+        double bkgf = polysig.getVal();
+        double sigf1 = sig1.getVal();
+        double sigf2 = sig2.getVal();
+        double sigwf1 = sigf1/(sigf1 + sigf2);
+        double sigwf2 = sigf2/(sigf1 + sigf2);
+        double c1 = a.getVal();
+        double c2 = b.getVal();
+        
+        double sigmaf = sqrt(sigmaf1 * sigmaf1 * sigwf1 + sigmaf2 * sigmaf2 * sigwf2);
+        double massmin = meanf - 2.0*sigmaf;
+        double massmax = meanf + 2.0*sigmaf;
 
-  TH2F* hempty = new TH2F("hempty","",50,0,1.,10,0.,max*1.2);  
-  hempty->GetXaxis()->CenterTitle();
-  hempty->GetYaxis()->CenterTitle();
-  hempty->GetXaxis()->SetTitle("Signal efficiency");
-  hempty->GetYaxis()->SetTitle("S/sqrt(S+B)");
-  hempty->GetXaxis()->SetTitleOffset(0.9);
-  hempty->GetYaxis()->SetTitleOffset(1.0);
-  hempty->GetXaxis()->SetTitleSize(0.05);
-  hempty->GetYaxis()->SetTitleSize(0.05);
-  hempty->GetXaxis()->SetTitleFont(42);
-  hempty->GetYaxis()->SetTitleFont(42);
-  hempty->GetXaxis()->SetLabelFont(42);
-  hempty->GetYaxis()->SetLabelFont(42);
-  hempty->GetXaxis()->SetLabelSize(0.035);
-  hempty->GetYaxis()->SetLabelSize(0.035);
-  TLatex* texPar = new TLatex(0.18,0.93, "PbPb 2.76 TeV D^{0}");
-  texPar->SetNDC();
-  texPar->SetTextAlign(12);
-  texPar->SetTextSize(0.04);
-  texPar->SetTextFont(42);
-  TLatex* texPtY = new TLatex(0.96,0.93, Form("|y|<1, %.1f<p_{T}<%.1f GeV/c",ptmin,ptmax));
-  texPtY->SetNDC();
-  texPtY->SetTextAlign(32);
-  texPtY->SetTextSize(0.04);
-  texPtY->SetTextFont(42);
+        int nmin = h->GetXaxis()->FindBin(massmin);
+        int nmax = h->GetXaxis()->FindBin(massmax);
+        int anmin = h->GetXaxis()->FindBin(1.70);
+        int anmax = h->GetXaxis()->FindBin(2.00);
+        
+        double awyh1 = h->Integral(anmin,nmin);
+        double awyh2 = h->Integral(nmax,anmax);
+        double awyh = awyh1 + awyh2;
+        double totyh = h->Integral(nmin,nmax);
+        
+        x.setRange("cut",massmin,massmax);
+        RooAbsReal* ibkg = poly.createIntegral(x,NormSet(x),Range("cut"));
+        RooAbsReal* isig1 = gaus1.createIntegral(x,NormSet(x),Range("cut"));
+        RooAbsReal* isig2 = gaus2.createIntegral(x,NormSet(x),Range("cut"));
+        double ibkgf = ibkg->getVal();
+        double bkgfe = polysig.getError();
+        double isig1f = isig1->getVal();
+        double isig2f = isig2->getVal();
+        
+        double bkgy = ibkgf*bkgf;
+        double bkgye = ibkgf*bkgfe;
+        double sigy1 = isig1f*sigf1;
+        double sigy2 = isig2f*sigf2;
+        double sigy = sigy1 + sigy2;
+        double toty = bkgy + sigy;
+        
+        double abkgy = (1-ibkgf)*bkgf;
+        double asigy1 = (1-isig1f)*sigf1;
+        double asigy2 = (1-isig2f)*sigf2;
+        double asigy = asigy1 + asigy2;
+        double awy = abkgy + asigy;
+        
+        double sigfrac = sigy/toty;
+        double bkgfrac = bkgy/toty;
+        
+        double sigyh = totyh - bkgy;
+        double sigfrach = sigyh/totyh;
+        double bkgfrach = bkgy/totyh;
+        
+        double signif = sigyh/sqrt(totyh);
+        sigsig[icut] = signif;
+    }
 
-  TGraph* gsig = new TGraph(100,effS,effSig);
-  TCanvas* csig = new TCanvas("csig","",600,600);
-  hempty->Draw();
-  texPar->Draw();
-  texPtY->Draw();
-  gsig->Draw("same*");
-  csig->SaveAs("plots/Significance.pdf");
+    for(int icut=0;icut<100;icut++)
+    {
+        cout<<"icut: "<<icut<<" ,sigsig: "<<sigsig[icut]<<endl;
+    }
+    
 }
 
-void calRatio(Float_t* results, Bool_t verbose=false)
-{
-  TFile *inputS = TFile::Open(inputSname);
-  TFile *inputB = TFile::Open(inputBname);
 
-  TTree *signal = (TTree*)inputS->Get("D0para/D0para");
-  TTree *background = (TTree*)inputB->Get("demo/D0para");
-  TTree *generated = (TTree*)inputS->Get("D0para/D0para");
-
-  TString sels = Form("%s&&pT>%f&&pT<%f",mycuts.Data(),ptmin,ptmax);
-  TString selb = Form("%s&&pT>%f&&pT<%f",mycutb.Data(),ptmin,ptmax);
-  TString selg = Form("%s&&pT>%f&&pT<%f",mycutg.Data(),ptmin,ptmax);
-
-  TString ptstring = Form("(%.1f,%.1f)",ptmin,ptmax);
-  cout<<" | "<<setiosflags(ios::left)<<setw(10)<<"Pt"<<" | "<<setiosflags(ios::left)<<setw(26)<<ptstring<<" | "<<setiosflags(ios::left)<<setw(6)<<" "<<" |"<<endl;
-  cout<<" ├────────────┼────────────────────────────┼────────┤"<<endl;
-  cout<<" | "<<setiosflags(ios::left)<<setw(10)<<"Raa"<<" | "<<setiosflags(ios::left)<<setw(26)<<raa<<" | "<<setiosflags(ios::left)<<setw(6)<<" "<<" |"<<endl;
-  cout<<" ╘════════════╧════════════════════════════╧════════╛"<<endl;
-  cout<<endl;
-
-  //Get signal peak sigma
-  TH1D* hmassS = new TH1D("hmassS",";D mass (GeV/c^{2});Signal Entries",50,1.7,2.1);
-  signal->Project("hmassS","mass",sels);
-  hmassS->Sumw2();
-  TCanvas* cmassS = new TCanvas("cmassS","",600,600);
-  hmassS->Draw();
-  TF1* fmass = new TF1("fmass","[0]*Gaus(x,[1],[2])");
-  fmass->SetParLimits(2,0.005,0.05);
-  Float_t setparam1 = 1.86;
-  Float_t setparam2 = 0.01;
-  fmass->SetParameter(1,setparam1);
-  fmass->SetParameter(2,setparam2);
-  if(verbose) hmassS->Fit("fmass","L","",1.7,2.1);
-  else hmassS->Fit("fmass","L q","",1.7,2.1);
-  cmassS->SaveAs("plots/Signal.pdf");
-  Float_t sigma = fmass->GetParameter(2);
-
-  //Background candidate number
-  TH1D* hmassB = new TH1D("hmassB",";D mass (GeV/c^{2});Background Entries",50,0,10);
-  background->Project("hmassB","mass",selb);
-  TCanvas* cmassB = new TCanvas("cmassB","",600,600);
-  hmassB->Draw();
-  cmassB->SaveAs("plots/Background.pdf");
-  Int_t nentriesB = hmassB->Integral();
-
-  //FONLL
-  ifstream getdata("fonlls/fo_Dzero_pp_2p76_y1.dat");
-  if(!getdata.is_open()) cout<<"Opening the file fails"<<endl;
-  Float_t tem;
-  Int_t nbin=0;
-  while (!getdata.eof())
-    {
-      getdata>>pt[nbin]>>central[nbin]>>tem>>tem>>tem>>tem>>tem>>tem>>tem>>tem>>tem>>tem>>tem>>tem;
-      if(pt[nbin]>=ptmin&&pt[nbin]<=ptmax) nbin++;
-    }
-  TH1D* hfonll = new TH1D("hfonll",";D p_{T} (GeV/c);FONLL differential xsection",nbin-1,pt);
-  for(int i=0;i<nbin;i++)
-    {
-      hfonll->SetBinContent(i,central[i]);
-    }
-  TCanvas* cfonll = new TCanvas("cfonll","",600,600);
-  hfonll->Draw();
-  cfonll->SaveAs("plots/Fonll.pdf");
-
-  TH1D* hrec = new TH1D("hrec",";D p_{T} (GeV/c);Signal reco entries",nbin-1,pt);
-  TH1D* hgen = new TH1D("hgen",";D p_{T} (GeV/c);Generated entries",nbin-1,pt);
-  TH1D* heff = new TH1D("heff",";D p_{T} (GeV/c);Prefilter efficiency",nbin-1,pt);
-  signal->Project("hrec","pT",mycuts);
-  generated->Project("hgen","pT",mycutg);
-  heff->Divide(hrec,hgen,1.,1.,"B");
-  TCanvas* ceff = new TCanvas("ceff","",600,600);
-  heff->Draw();
-  ceff->SaveAs("plots/EffPrefilter.pdf");
-
-  TH1D* htheoryreco = new TH1D("htheoryreco","",nbin-1,pt);
-  htheoryreco->Multiply(heff,hfonll,1,1,"B");
-
-  Double_t nevent = background->GetEntries();
-  Double_t Taa = 5.65; //mb^-1
-  Double_t BR = 0.0387;
-  Double_t deltapt = 0.25;
-  //central[i] - in pb/GeV/c
-
-  Double_t yieldDzero = htheoryreco->Integral();
-  yieldDzero*=(1.e-9)*BR*deltapt*Taa*nevent*raa;
-
-  results[0] = nentriesB*Nsigma*sigma/0.05;//0.05: half of sideband width
-  results[1] = yieldDzero;
-  cout<<endl;
-  cout<<" ╒══════════════════════════════════════════════════╕"<<endl;
-  cout<<" |                   Weight Result                  |"<<endl;
-  cout<<" ├────────────┬────────────┬────────────┬───────────┤"<<endl;
-  cout<<" | "<<setiosflags(ios::left)<<setw(10)<<"Bkg #"<<" | "<<setiosflags(ios::left)<<setw(10)<<nentriesB<<" | "<<setiosflags(ios::left)<<setw(10)<<"Sig reg"<<" | "<<setiosflags(ios::left)<<setw(9)<<setprecision(3)<<sigma*Nsigma*2<<" |"<<endl;
-  cout<<" ├────────────┼────────────┼────────────┼───────────┤"<<endl;
-  cout<<" | "<<setiosflags(ios::left)<<setw(10)<<"SigWeight"<<" | "<<setiosflags(ios::left)<<setw(10)<<yieldDzero<<" | "<<setiosflags(ios::left)<<setw(10)<<"BkgWeight"<<" | "<<setiosflags(ios::left)<<setw(9)<<nentriesB*Nsigma*sigma/0.05<<" |"<<endl;
-  cout<<" ╘════════════╧════════════╧════════════╧═══════════╛"<<endl;
-}
