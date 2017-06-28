@@ -12,8 +12,8 @@ TString varval[NmaxVar];
 Int_t Nsigma = 2;
 Float_t ptmin,ptmax,raa;
 
-TString inputSname = "/data/aozhang/TMVA/D0tree_Pythia8_pp502_Pthat0_5_10_15_prompt_loosecut_matched_deltaR0p5.root";
-TString inputBname = "/data/aozhang/TMVA/a.root";
-TString mycuts = "pT<2&&pT>1&&eta<1.0&&eta>-1.0&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.05&&3DPointingAngle<0.30&&pTD1>0.7&&pTD2>0.7&&NHitD1>=11&&NHitD2>=11";
-TString mycutb = "Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1.0&&eta>-1.0&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.05&&3DPointingAngle<0.30&&pTD1>0.7&&pTD2>0.7&&NHitD1>=11&&NHitD2>=11";
-TString mycutg = "eta>-1.&&eta<1.";
+TString inputSname = "/uscms_data/d3/azhang/MYWORK/CMSSW_8_0_24/src/newall/D0tree_Pythia8_pp502_Pthat0_prompt_loosecut_matched_deltaR0p5.root";
+TString inputBname = "/uscms_data/d3/azhang/MYWORK/CMSSW_8_0_24/src/newall/a.root";
+//TString mycuts = "pT<3.0&&pT>2.5&&VtxProb>0.05&&3DPointingAngle<0.30&&TMath::Abs(3DDecayLength/3DDecayLengthError)>1.5";
+//TString mycutb = "pT<3.0&&pT>2.5&&VtxProb>0.05&&3DPointingAngle<0.30&&TMath::Abs(3DDecayLength/3DDecayLengthError)>1.5";
+//TString mycutg = "eta>-1.&&eta<1.";

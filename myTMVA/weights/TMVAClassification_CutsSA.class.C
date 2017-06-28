@@ -9,11 +9,11 @@
 Method         : Cuts::CutsSA
 TMVA Release   : 4.2.1         [262657]
 ROOT Release   : 6.06/01       [394753]
-Creator        : aozhang
-Date           : Tue Jun  6 12:43:41 2017
+Creator        : azhang
+Date           : Tue Jun 27 05:33:36 2017
 Host           : Linux vocms0301.cern.ch 2.6.32-642.4.2.el6.x86_64 #1 SMP Wed Aug 24 09:19:54 CEST 2016 x86_64 x86_64 x86_64 GNU/Linux
-Dir            : /afs/cern.ch/work/a/aozhang/private/CMSSW_8_0_24/src/TMVA/TMVARectangleForDvn-TMVARectangleForDvn/myTMVA
-Training events: 1218920
+Dir            : /uscms_data/d3/azhang/MYWORK/CMSSW_8_0_24/src/TMVA/pt3/TMVARectangleForDvn/myTMVA
+Training events: 347243
 Analysis type  : [Classification]
 
 
@@ -44,9 +44,9 @@ VarProp[0]: "FMax" [Categorisation of cuts]
 #VAR -*-*-*-*-*-*-*-*-*-*-*-* variables *-*-*-*-*-*-*-*-*-*-*-*-
 
 NVar 3
-VtxProb                       VtxProb                       VtxProb                       VtxProb                                                         'F'    [0.0500007756054,0.999997138977]
-3DPointingAngle               3DPointingAngle               3DPointingAngle               3DPointingAngle                                                 'F'    [0.000265545997536,0.299999803305]
-TMath::Abs(3DDecayLength/3DDecayLengthError)  TMath_Abs_3DDecayLength_D_3DDecayLengthError_ TMath::Abs(3DDecayLength/3DDecayLengthError)  TMath::Abs(3DDecayLength/3DDecayLengthError)                                                    'F'    [1.50000178814,8626.82226562]
+VtxProb                       VtxProb                       VtxProb                       VtxProb                                                         'F'    [0.0500003434718,0.999994635582]
+3DPointingAngle               3DPointingAngle               3DPointingAngle               3DPointingAngle                                                 'F'    [0.000443835160695,0.199999779463]
+3DDecayLengthSignificance     3DDecayLengthSignificance     3DDecayLengthSignificance     3DDecayLengthSignificance                                       'F'    [3.50000047684,99.9646377563]
 NSpec 0
 
 
@@ -93,7 +93,7 @@ class ReadCutsSA : public IClassifierReader {
         fIsNormalised( false )
    {      
       // the training input variables
-      const char* inputVars[] = { "VtxProb", "3DPointingAngle", "TMath::Abs(3DDecayLength/3DDecayLengthError)" };
+      const char* inputVars[] = { "VtxProb", "3DPointingAngle", "3DDecayLengthSignificance" };
 
       // sanity checks
       if (theInputVars.size() <= 0) {

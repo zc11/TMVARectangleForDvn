@@ -26,7 +26,7 @@ using namespace std;
 //cut order overall: pTmax,pTmin,abs(eta),abs(daueta),VtxProb,3DPointingAngle,3DDecayLengthSignificance,pTD,NHitD
 //cut order TMVA: VtxProb,3DPointingAngle,pTD1,pTD2
 
-void readxml(Float_t ptMin=1., Float_t ptMax=2.)
+void readxml(Float_t ptMin=2.5, Float_t ptMax=3.0)
 {
   ptmin = ptMin;
   ptmax = ptMax;
@@ -173,23 +173,23 @@ TFile *inputS = TFile::Open(inputSname);
     float dlS;
     float dlerrS;
 
-    signal->SetBranchAddress("Ntrkoffline",&nMult_ass_goodS);
+    //signal->SetBranchAddress("Ntrkoffline",&nMult_ass_goodS);
     signal->SetBranchAddress("pT",&ptS);
-    signal->SetBranchAddress("eta",&etaS);
+    //signal->SetBranchAddress("eta",&etaS);
     signal->SetBranchAddress("mass",&massS);
     signal->SetBranchAddress("VtxProb",&VtxProbS);
     signal->SetBranchAddress("3DPointingAngle",&agl_absS);
-    //signal->SetBranchAddress("3DDecayLengthSignificance",&dlosS);
-    signal->SetBranchAddress("NHitD1",&nhit1S);
-    signal->SetBranchAddress("NHitD2",&nhit2S);
-    signal->SetBranchAddress("pTD1",&pt1S);
-    signal->SetBranchAddress("pTD2",&pt2S);
-    signal->SetBranchAddress("pTerrD1",&ptErr1S);
-    signal->SetBranchAddress("pTerrD2",&ptErr2S);
-    signal->SetBranchAddress("EtaD1",&eta1S);
-    signal->SetBranchAddress("EtaD2",&eta2S);
-    signal->SetBranchAddress("3DDecayLength",&dlS);
-    signal->SetBranchAddress("3DDecayLengthError", &dlerrS);
+    signal->SetBranchAddress("3DDecayLengthSignificance",&dlosS);
+    //signal->SetBranchAddress("NHitD1",&nhit1S);
+    //signal->SetBranchAddress("NHitD2",&nhit2S);
+    //signal->SetBranchAddress("pTD1",&pt1S);
+    //signal->SetBranchAddress("pTD2",&pt2S);
+    //signal->SetBranchAddress("pTerrD1",&ptErr1S);
+    //signal->SetBranchAddress("pTerrD2",&ptErr2S);
+    //signal->SetBranchAddress("EtaD1",&eta1S);
+    //signal->SetBranchAddress("EtaD2",&eta2S);
+    //signal->SetBranchAddress("3DDecayLength",&dlS);
+    //signal->SetBranchAddress("3DDecayLengthError", &dlerrS);
 
     Int_t nentriesS = signal->GetEntries();
     for (Int_t i=0;i<nentriesS;i++)
@@ -198,16 +198,10 @@ TFile *inputS = TFile::Open(inputSname);
         
         //first implement non-tuning cut; must be sychronized with the setting in TMVA tuning (mycutb)
         //if(nMult_ass_goodS<185 || nMult_ass_goodS>=250) continue;
-        if(ptS>2.0 || ptS<1.0) continue;
-        if(fabs(eta1S)>1.5 || fabs(eta2S)>1.5) continue;
-        if(fabs(etaS)>1.0) continue;
-        if(TMath::Abs(dlS/dlerrS)<=1.5) continue;
-        if(nhit1S<11 || nhit2S<11) continue;
-        if(ptErr1S/pt1S>=0.1 || ptErr2S/pt2S>=0.1) continue;
+        if(ptS>3.0 || ptS<2.5) continue;
+        if(dlosS<=3.5) continue;
         if(VtxProbS<0.05) continue;
-        if(agl_absS>0.30) continue;
-        if(pt1S<0.7) continue;
-        if(pt2S<0.7) continue;
+        if(agl_absS>0.20) continue;
         
             DmassS->Fill(massS);
         
@@ -231,24 +225,23 @@ TFile *inputS = TFile::Open(inputSname);
     float dl;
     float dlerr;
     
-    background->SetBranchAddress("Ntrkoffline",&nMult_ass_good);
+    //background->SetBranchAddress("Ntrkoffline",&nMult_ass_good);
     background->SetBranchAddress("pT",&pt);
-    background->SetBranchAddress("eta",&eta);
+    //background->SetBranchAddress("eta",&eta);
     background->SetBranchAddress("mass",&mass);
     background->SetBranchAddress("VtxProb",&VtxProb);
     background->SetBranchAddress("3DPointingAngle",&agl_abs);
-    //background->SetBranchAddress("3DDecayLengthSignificance",&dlos);
-    background->SetBranchAddress("3DDecayLength",&dl);
-    background->SetBranchAddress("NHitD1",&nhit1);
-    background->SetBranchAddress("NHitD2",&nhit2);
-    background->SetBranchAddress("pTD1",&pt1);
-    background->SetBranchAddress("pTD2",&pt2);
-    background->SetBranchAddress("pTerrD1",&ptErr1);
-    background->SetBranchAddress("pTerrD2",&ptErr2);
-    background->SetBranchAddress("EtaD1",&eta1);
-    background->SetBranchAddress("EtaD2",&eta2);
-    background->SetBranchAddress("3DDecayLength",&dl);
-    background->SetBranchAddress("3DDecayLengthError",&dlerr);
+    background->SetBranchAddress("3DDecayLengthSignificance",&dlos);
+    //background->SetBranchAddress("NHitD1",&nhit1);
+    //background->SetBranchAddress("NHitD2",&nhit2);
+    //background->SetBranchAddress("pTD1",&pt1);
+    //background->SetBranchAddress("pTD2",&pt2);
+    //background->SetBranchAddress("pTerrD1",&ptErr1);
+    //background->SetBranchAddress("pTerrD2",&ptErr2);
+    //background->SetBranchAddress("EtaD1",&eta1);
+    //background->SetBranchAddress("EtaD2",&eta2);
+    //background->SetBranchAddress("3DDecayLength",&dl);
+    //background->SetBranchAddress("3DDecayLengthError",&dlerr);
 
 
     
@@ -258,17 +251,10 @@ TFile *inputS = TFile::Open(inputSname);
         background->GetEntry(i);
         
         //first implement non-tuning cut; must be sychronized with the setting in TMVA tuning (mycutb)
-        if(nMult_ass_good<185 || nMult_ass_good>=250) continue;
-        if(pt>2.0 || pt<1.0) continue;
-        if(fabs(eta1)>1.5 || fabs(eta2)>1.5) continue;
-        if(fabs(eta)>1.0) continue;
-        if(TMath::Abs(dl/dlerr)<=1.5) continue;
-        if(nhit1<11 || nhit2<11) continue;
-        if(ptErr1/pt1>=0.1 || ptErr2/pt2>=0.1) continue;
+        if(pt>3.0 || pt<2.5) continue;
+        if(dlos<=3.5) continue;
         if(VtxProb<0.05) continue;
-        if(agl_abs>0.30) continue;
-        if(pt1<0.7) continue;
-        if(pt2<0.7) continue;
+        if(agl_abs>0.20) continue;
 
         DmassB->Fill(mass);
         
@@ -276,7 +262,7 @@ TFile *inputS = TFile::Open(inputSname);
         {
             if(VtxProb<cutval[0].at(icut)) continue;
             if(agl_abs>cutval[1].at(icut)) continue;
-            if(dl/dlerr<cutval[2].at(icut)) continue;
+            if(dlos<cutval[2].at(icut)) continue;
           //  if(dlerr>cutval[3].at(icut)) continue;
           //  if(pt1<cutval[0].at(icut)) continue;
           //  if(pt2<cutval[1].at(icut)) continue;
@@ -304,7 +290,7 @@ TFile *inputS = TFile::Open(inputSname);
         RooDataHist data("data","dataset", x, h);
         RooPlot* xframe = x.frame(60);
         data.plotOn(xframe,Name("data"));
-        RooRealVar mean("mean","mean",1.86, 1.80, 1.90);
+        RooRealVar mean("mean","mean",1.86, 1.82, 1.90);
         RooRealVar sigma1("sigma1","sigma1",0.015,0.005,0.03);
         RooRealVar sigma2("sigma2","sigma2",0.015,0.005,0.03);
         RooRealVar sig1("sig1","signal1",10,0,10000000);
@@ -417,7 +403,7 @@ TFile *inputS = TFile::Open(inputSname);
         latex.DrawLatex(0.70,0.70,Form("mean = %.3f", meanf));
         latex.DrawLatex(0.70,0.65,Form("#sigma = %.4f", sigmaf));
 
-        c->Print(Form("./plots/fits/cut%d.pdf", icut+1));
+        c->Print(Form("./plots/fits/cut%d.pdf", icut));
 
     }
 
@@ -425,14 +411,14 @@ TFile *inputS = TFile::Open(inputSname);
     {
         cout<<"icut: "<<icut<<" ,sigsig: "<<sigsig[icut];
       //  cout<<"VtxProb > "<<cutval[0].at(icut)<<", angle < "<<cutval[1].at(icut);
-        cout<<", VtxProb > "<<cutval[0].at(icut)<<", angle < "<<cutval[1].at(icut)<<", dl/dlerr > "<<cutval[2].at(icut)<<endl;
+        cout<<", VtxProb > "<<cutval[0].at(icut)<<", angle < "<<cutval[1].at(icut)<<", dlos > "<<cutval[2].at(icut)<<endl;
       //  cout<<", dl > "<<cutval[2].at(icut)<<", dlerr <"<<cutval[3].at(icut)<<endl;       
     }
 
     TCanvas* cg = new TCanvas("cg","cg",800,800);
     cg->cd();
     TGraph* g = new TGraph (100 ,sigeff, sigsig);
-    g->Draw();
+    g->Draw("A");
     cg->Print("./plots/sigeff.pdf");
 
     TCanvas *cS = new TCanvas("cS","cS",1600,1600);

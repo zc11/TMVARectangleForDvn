@@ -194,7 +194,7 @@ void TMVAClassification( TString myMethodList = "" )
 
    factory->AddVariable("VtxProb");//>
    factory->AddVariable("3DPointingAngle");//>
-   factory->AddVariable("TMath::Abs(3DDecayLength/3DDecayLengthError)");//>
+   factory->AddVariable("3DDecayLengthSignificance");//>
 //   factory->AddVariable("3DDecayLengthError");
 //   factory->AddVariable("pTD1");//>
 //   factory->AddVariable("pTD2");//>
@@ -215,8 +215,8 @@ void TMVAClassification( TString myMethodList = "" )
    //   gSystem->Exec("wget http://root.cern.ch/files/tmva_class_example.root");
    
    
-   TFile *inputS = TFile::Open("/data/aozhang/TMVA/D0tree_Pythia8_pp502_Pthat0_5_10_15_prompt_loosecut_matched_deltaR0p5.root");
-   TFile *inputB = TFile::Open("/data/aozhang/TMVA/a.root");
+   TFile *inputS = TFile::Open("/uscms_data/d3/azhang/MYWORK/CMSSW_8_0_24/src/newall/D0tree_Pythia8_pp502_Pthat0_prompt_loosecut_matched_deltaR0p5.root");
+   TFile *inputB = TFile::Open("/uscms_data/d3/azhang/MYWORK/CMSSW_8_0_24/src/newall/a1.root");
 
    std::cout << "--- TMVAClassification       : Using input file: " << inputS->GetName() << " & "<< inputB->GetName() <<std::endl;
    
@@ -280,9 +280,8 @@ void TMVAClassification( TString myMethodList = "" )
    // Apply additional cuts on the signal and background samples (can be different)
 
    //pp
-   TCut mycuts = "pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.05&&3DPointingAngle<0.30&&pTD1>0.7&&pTD2>0.7&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1&&TMath::Abs(3DDecayLength/3DDecayLengthError)>1.5";
-   TCut mycutb = "TMath::Abs(mass-1.865)>0.07&&TMath::Abs(mass-1.865)<0.15&&Ntrkoffline>=185&&Ntrkoffline<250&&pT<2&&pT>1&&eta<1&&eta>-1&&EtaD1<1.5&&EtaD1>-1.5&&EtaD2<1.5&&EtaD2>-1.5&&VtxProb>0.05&&3DPointingAngle<0.30&&pTD1>0.7&&pTD2>0.7&&NHitD1>=11&&NHitD2>=11&&pTerrD1/pTD1<0.1&&pTerrD2/pTD2<0.1&&TMath::Abs(3DDecayLength/3DDecayLengthError)>1.5";
-
+   TCut mycuts = "pT<3.0&&pT>2.5&&VtxProb>0.05&&3DPointingAngle<0.20&&3DDecayLengthSignificance>3.5&&3DDecayLengthSignificance<100.00";
+   TCut mycutb = "pT<3.0&&pT>2.5&&VtxProb>0.05&&3DPointingAngle<0.20&&3DDecayLengthSignificance>3.5&&3DDecayLengthSignificance<100.00";
    // Tell the factory how to use the training and testing events
    //
    // If no numbers of events are given, half of the events in the tree are used 
